@@ -1,1 +1,5 @@
 *:Zone.Identifier
+node_modules/
+render/out/
+__pycache__/
+.DS_Store
