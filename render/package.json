@@ -1,0 +1,14 @@
+{
+  "name": "climb-day-strength-render",
+  "private": true,
+  "type": "module",
+  "description": "Deterministic 3D exercise clip renderer (three.js + Playwright + ffmpeg)",
+  "scripts": {
+    "poses": "node scripts/check_poses.mjs"
+  },
+  "dependencies": {
+    "@fontsource/barlow": "^5.3.0",
+    "@fontsource/barlow-condensed": "^5.3.0",
+    "three": "0.169.0"
+  }
+}
