@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Climb Day Strength</title>
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:ital,wght@0,400;0,500;0,600;0,700&display=swap">
+
+<style>
+/* Layout: one column. Plain-language summary, then two session lists.
+   Each exercise opens to a looping demonstration video (3D-rendered). */
+:root{
+  --bg:#f1f1f4;
+  --surface:#ffffff;
+  --sunk:#e8e8ee;
+  --deep:#16161d;
+  --fg:#16161d;
+  --fg-2:#3f3f4d;
+  --muted:#6a6a7a;
+  --line:#dadae3;
+  --line-2:#c7c7d4;
+  --accent:#3a41cc;
+  --accent-2:#5b62ee;
+  --accent-soft:#e7e8fa;
+  --amber:#9a5f12;
+  --amber-soft:#f8eddb;
+  --fig:#23232e;
+  --fig-far:#8b8b9e;
+  --gear:#3a41cc;
+  --grid:#c4c4d2;
+  --display:'Barlow Condensed','Arial Narrow',Arial,sans-serif;
+  --body:'Barlow','Segoe UI',system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e0e13;--surface:#191920;--sunk:#131319;--deep:#05050a;
+    --fg:#eaeaf2;--fg-2:#c3c3d2;--muted:#8e8ea1;--line:#282832;--line-2:#35353f;
+    --accent:#8e95ff;--accent-2:#a7adff;--accent-soft:#1d1e33;
+    --amber:#e2ad68;--amber-soft:#2a2216;
+    --fig:#dcdce8;--fig-far:#5f5f74;--gear:#8e95ff;--grid:#33333f;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e0e13;--surface:#191920;--sunk:#131319;--deep:#05050a;
+  --fg:#eaeaf2;--fg-2:#c3c3d2;--muted:#8e8ea1;--line:#282832;--line-2:#35353f;
+  --accent:#8e95ff;--accent-2:#a7adff;--accent-soft:#1d1e33;
+  --amber:#e2ad68;--amber-soft:#2a2216;
+  --fig:#dcdce8;--fig-far:#5f5f74;--gear:#8e95ff;--grid:#33333f;
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--bg);color:var(--fg);
+  font-family:var(--body);font-size:16px;line-height:1.6;
+  font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:680px;margin:0 auto;padding-inline:20px;padding-block:30px 72px;display:flex;flex-direction:column;gap:44px}
+h1,h2,h3{font-family:var(--display);margin:0;line-height:1.02;text-wrap:balance}
+h1{font-size:clamp(46px,13vw,76px);font-weight:700;letter-spacing:-0.015em;text-transform:uppercase}
+h2{font-size:clamp(25px,6vw,32px);font-weight:600;text-transform:uppercase;letter-spacing:0.005em}
+p{margin:0}
+a{color:var(--accent);text-underline-offset:3px}
+
+.kicker{font-family:var(--display);font-size:15px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent)}
+.sub{color:var(--muted);font-size:17px;max-width:46ch;margin-top:14px}
+
+.summary{background:var(--deep);color:#f4f4fa;border-radius:16px;padding-inline:22px;padding-block:24px 26px;display:flex;flex-direction:column;gap:18px}
+.summary h2{color:#fff;font-size:22px;letter-spacing:.06em}
+.steps{display:flex;flex-direction:column;gap:14px}
+.stepr{display:grid;grid-template-columns:30px 1fr;gap:14px;align-items:start}
+.stepr .num{font-family:var(--display);font-weight:700;font-size:26px;line-height:1;color:var(--accent-2);padding-top:2px}
+.stepr p{font-size:17px;line-height:1.42;color:#e3e3ee}
+.stepr b{font-weight:700;color:#fff}
+.summary .fine{font-size:14px;color:#9c9cb4;border-top:1px solid rgba(255,255,255,.13);padding-top:14px}
+
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.flow span{font-family:var(--display);font-size:15px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;background:var(--surface);border:1px solid var(--line);border-radius:7px;padding:5px 10px;line-height:1.1}
+.flow i{color:var(--line-2);font-style:normal;font-size:13px}
+
+.band{display:flex;flex-direction:column;gap:14px}
+.band-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;border-bottom:2px solid var(--fg);padding-bottom:10px}
+.band-head .mins{margin-left:auto;font-family:var(--display);font-size:17px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.08em}
+
+.list{display:flex;flex-direction:column;gap:9px}
+.ex{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;transition:border-color .2s ease}
+.ex.open{border-color:var(--accent)}
+.ex-head{
+  all:unset;display:grid;grid-template-columns:30px 1fr auto 14px;gap:13px;align-items:center;
+  width:100%;padding-inline:17px;padding-block:16px;cursor:pointer;box-sizing:border-box;
+}
+.ex-head:focus-visible{outline:2px solid var(--accent);outline-offset:-3px;border-radius:12px}
+.ex-n{font-family:var(--display);font-size:17px;font-weight:700;color:var(--line-2)}
+.ex.open .ex-n{color:var(--accent)}
+.ex-name{font-family:var(--display);font-size:23px;font-weight:600;line-height:1.05;min-width:0;letter-spacing:.005em}
+.ex-name em{display:block;font-family:var(--body);font-style:normal;font-size:13.5px;font-weight:400;color:var(--muted);letter-spacing:0;line-height:1.35;margin-top:3px}
+.ex-dose{font-family:var(--display);font-size:17px;font-weight:600;letter-spacing:.02em;color:var(--fg-2);background:var(--sunk);border-radius:7px;padding:4px 10px;white-space:nowrap}
+.ex.open .ex-dose{background:var(--accent-soft);color:var(--accent)}
+.chev{width:9px;height:9px;border-right:2.5px solid var(--line-2);border-bottom:2.5px solid var(--line-2);transform:rotate(45deg) translate(-2px,-2px);transition:transform .28s ease;justify-self:end}
+.ex.open .chev{border-color:var(--accent);transform:rotate(-135deg) translate(-2px,-2px)}
+
+.ex-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .3s ease}
+.ex.open .ex-body{grid-template-rows:1fr}
+.ex-inner{overflow:hidden;min-height:0}
+.ex-pad{padding-inline:17px;padding-block:6px 20px;display:flex;flex-direction:column;gap:18px;border-top:1px solid var(--line);margin-top:2px}
+
+video.clip{display:block;width:100%;height:auto;aspect-ratio:16/10;object-fit:cover;background:#eceef3;border-radius:12px;border:1px solid var(--line);cursor:pointer}
+:root[data-theme="dark"] video.clip{filter:brightness(.93)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) video.clip{filter:brightness(.93)}}
+.canv{display:flex;flex-direction:column;gap:7px}
+.canv .cap{font-size:13.5px;color:var(--muted);line-height:1.45}
+.canv .cap b{color:var(--fg-2);font-weight:600}
+
+ol.how{margin:0;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:10px;counter-reset:h}
+ol.how li{display:block;position:relative;padding-left:33px;font-size:15.5px;line-height:1.48;counter-increment:h}
+ol.how li::before{content:counter(h);font-family:var(--display);font-weight:700;font-size:14px;color:var(--accent);background:var(--accent-soft);border-radius:5px;height:21px;width:22px;display:flex;align-items:center;justify-content:center;position:absolute;left:0;top:2px}
+ol.how b{font-weight:700}
+
+.cue{display:grid;grid-template-columns:auto 1fr;gap:11px;align-items:start;background:var(--accent-soft);border-radius:10px;padding-inline:14px;padding-block:12px;font-size:15px;line-height:1.45}
+.cue.warm{background:var(--amber-soft)}
+.cue .k{font-family:var(--display);font-size:13px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--accent);padding-top:3px}
+.cue.warm .k{color:var(--amber)}
+.swap{font-size:14.5px;color:var(--muted);line-height:1.5}
+.swap b{color:var(--fg-2);font-weight:600}
+
+.ab{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.ab div{background:var(--sunk);border-radius:10px;padding-inline:14px;padding-block:11px}
+.ab .t{display:block;font-family:var(--display);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.11em;color:var(--muted)}
+.ab .v{display:block;font-family:var(--display);font-size:20px;font-weight:600;margin-top:2px}
+
+.grid2{display:grid;grid-template-columns:1fr;gap:18px}
+@media (max-width:460px){.ab{grid-template-columns:1fr}}
+
+.rules{display:flex;flex-direction:column;gap:9px}
+.rule{display:grid;grid-template-columns:86px 1fr;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding-inline:15px;padding-block:13px;align-items:start}
+.rule .tag{font-family:var(--display);font-size:13px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:4px 0;text-align:center;border-radius:6px}
+.rule.up .tag{background:var(--accent-soft);color:var(--accent)}
+.rule.hold .tag{background:var(--amber-soft);color:var(--amber)}
+.rule p{font-size:15px;line-height:1.45}
+@media (max-width:460px){.rule{grid-template-columns:1fr;gap:7px}.rule .tag{justify-self:start;padding-inline:10px}}
+
+.refs{display:flex;flex-direction:column;gap:9px;font-size:14.5px;color:var(--muted);line-height:1.5}
+.refs p b{color:var(--fg-2);font-weight:600}
+
+footer{border-top:1px solid var(--line);padding-top:16px;color:var(--muted);font-size:13.5px;line-height:1.5}
+
+@media (prefers-reduced-motion:reduce){.ex-body,.chev,.ex{transition:none}}
+/* Session sub-panels inside an exercise */
+.sess{background:var(--sunk);border:1px solid var(--line);border-radius:12px;overflow:hidden;transition:border-color .2s ease}
+.sess.open{border-color:var(--accent);background:var(--surface)}
+.sess-head{all:unset;box-sizing:border-box;display:grid;grid-template-columns:34px 1fr auto 12px;gap:12px;align-items:center;width:100%;padding:12px 14px;cursor:pointer}
+.sess-head:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;border-radius:12px}
+.sess-tag{font-family:var(--display);font-size:18px;font-weight:700;color:var(--fg-2);background:var(--surface);border:1px solid var(--line-2);border-radius:8px;height:34px;display:flex;align-items:center;justify-content:center}
+.sess.open .sess-tag{background:var(--accent);border-color:var(--accent);color:#fff}
+.sess-name{font-family:var(--display);font-size:20px;font-weight:600;line-height:1.1;min-width:0}
+.sess-name em{display:block;font-family:var(--body);font-style:normal;font-size:13.5px;font-weight:400;color:var(--muted);line-height:1.35;margin-top:2px}
+.sess-dose{font-family:var(--display);font-size:15px;font-weight:600;color:var(--muted);white-space:nowrap}
+.schev{width:8px;height:8px;border-right:2.5px solid var(--line-2);border-bottom:2.5px solid var(--line-2);transform:rotate(45deg) translate(-2px,-2px);transition:transform .28s ease;justify-self:end}
+.sess.open .schev{border-color:var(--accent);transform:rotate(-135deg) translate(-2px,-2px)}
+.sess-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .3s ease}
+.sess.open .sess-body{grid-template-rows:1fr}
+.sess-inner{overflow:hidden;min-height:0}
+.sess-pad{padding-inline:14px;padding-block:4px 16px;display:flex;flex-direction:column;gap:14px}
+.sessions{display:flex;flex-direction:column;gap:10px}
+.shared{font-family:var(--display);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.11em;color:var(--muted);margin-bottom:-8px}
+@media (prefers-reduced-motion:reduce){.sess-body,.schev,.sess{transition:none}}
+
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+
+<header>
+  <span class="kicker">Two days a week</span>
+  <h1>Climb Day<br>Strength</h1>
+  <p class="sub">Everything bolted onto days you're climbing anyway. About fifteen minutes before, forty after. Tap any exercise to see the movement.</p>
+</header>
+
+<div class="summary">
+  <h2>The whole thing</h2>
+  <div class="steps">
+    <div class="stepr"><span class="num">1</span><p>Do this <b>twice a week</b>, on days you're already climbing. Leave at least two days between them.</p></div>
+    <div class="stepr"><span class="num">2</span><p><b>Before you climb — 15 min.</b> Warm up properly, then block pulls while you're fresh — edges one session, pinch the next.</p></div>
+    <div class="stepr"><span class="num">3</span><p><b>After you climb — 40 min.</b> Seven exercises, in the order shown below. Fit the face pulls into the rests between press sets.</p></div>
+    <div class="stepr"><span class="num">4</span><p>On every set, <b>stop with two reps left in you.</b> Never grind out the last one.</p></div>
+    <div class="stepr"><span class="num">5</span><p>When the <b>last set felt easy, add a little weight</b> next time. That is the entire progression.</p></div>
+    <div class="stepr"><span class="num">6</span><p><b>Every fifth week, go light.</b> Same exercises, roughly two thirds of the weight.</p></div>
+  </div>
+  <p class="fine">Nothing here needs a gym beyond a bar, some dumbbells and a band. Swaps are listed on each exercise.</p>
+</div>
+
+<div class="flow">
+  <span>Pull-ups</span><i>→</i><span>Press</span><i>→</i><span>Face pulls</span><i>→</i><span>Curls</span><i>→</i><span>Leg lifts</span><i>→</i><span>L-sit</span><i>→</i><span>Wrists</span>
+</div>
+
+<section class="band">
+  <div class="band-head"><h2>Before you climb</h2><span class="mins">15 min</span></div>
+  <div class="list">
+
+    <div class="ex">
+      <button class="ex-head" aria-expanded="false" type="button">
+        <span class="ex-n">01</span>
+        <span class="ex-name">Warm up<em>never touch a small edge cold</em></span>
+        <span class="ex-dose">4 min</span>
+        <span class="chev" aria-hidden="true"></span>
+      </button>
+      <div class="ex-body"><div class="ex-inner"><div class="ex-pad">
+        <div class="canv">
+          <video class="clip" data-clip="rockback" poster="v/rockback.jpg" muted loop playsinline preload="none" aria-label="Video: on hands and knees, rocking the bodyweight forward and back over the wrists."><source src="v/rockback.mp4" type="video/mp4"><source src="v/rockback.webm" type="video/webm"></video>
+          <p class="cap"><b>Wrist rock-backs.</b> Hands flat, fingers pointing forward. Rock forward and back ten times, then turn the hands to point at your knees and repeat.</p>
+        </div>
+        <ol class="how">
+          <li>Two minutes of anything that raises your pulse and warms the hands — skipping, rowing, arm swings, jogging on the spot.</li>
+          <li>Rock-backs both directions, as above.</li>
+          <li>Open and close the hands hard twenty times, then shake them out.</li>
+          <li>Four or five easy climbs on big holds before anything hard.</li>
+        </ol>
+        <div class="cue warm"><span class="k">Why</span><span>Finger pulleys take the highest load of any tissue in climbing. Two minutes of warm-up is the cheapest injury insurance available.</span></div>
+      </div></div></div>
+    </div>
+
+    <div class="ex">
+      <button class="ex-head" aria-expanded="false" type="button">
+        <span class="ex-n">02</span>
+        <span class="ex-name">Block pulls<em>edges one session, pinch the next</em></span>
+        <span class="ex-dose">4 × 10s</span>
+        <span class="chev" aria-hidden="true"></span>
+      </button>
+      <div class="ex-body"><div class="ex-inner"><div class="ex-pad">
+        <div class="sessions">
+          <div class="sess">
+            <button class="sess-head" type="button" aria-expanded="false">
+              <span class="sess-tag">A</span>
+              <span class="sess-name">Edge block<em>half crimp, then full crimp</em></span>
+              <span class="sess-dose">4 × 10s</span>
+              <span class="schev" aria-hidden="true"></span>
+            </button>
+            <div class="sess-body"><div class="sess-inner"><div class="sess-pad">
+              <div class="canv">
+                <video class="clip" data-clip="blockpull" poster="v/blockpull.jpg" muted loop playsinline preload="none" aria-label="Video: standing with a finger block attached to a loading pin, lifting the plates just off the floor and holding for ten seconds."><source src="v/blockpull.mp4" type="video/mp4"><source src="v/blockpull.webm" type="video/webm"></video>
+                <p class="cap"><b>Four holds each hand.</b> Holds 1 and 2 in half crimp, holds 3 and 4 in full crimp.</p>
+              </div>
+              <ol class="how">
+                <li><b>Half crimp:</b> fingertips on the edge, middle knuckles bent to about 90°, thumb off the edge.</li>
+                <li><b>Full crimp:</b> middle knuckles bent past 90°, fingertip joints pushed back, thumb wrapped over the index finger.</li>
+              </ol>
+              <div class="cue warm"><span class="k">Care</span><span>Full crimp puts the most load on the finger pulleys of any grip. Start it lighter than your half-crimp weight, and drop it for the day if a finger feels tweaky.</span></div>
+              <p class="swap"><b>No block or pin?</b> A 20mm hangboard edge with your feet on a chair, taking enough weight through the legs that ten seconds is hard but controlled.</p>
+            </div></div></div>
+          </div>
+          <div class="sess">
+            <button class="sess-head" type="button" aria-expanded="false">
+              <span class="sess-tag">B</span>
+              <span class="sess-name">Wide pinch<em>thumb on one face, fingers on the other</em></span>
+              <span class="sess-dose">4 × 10s</span>
+              <span class="schev" aria-hidden="true"></span>
+            </button>
+            <div class="sess-body"><div class="sess-inner"><div class="sess-pad">
+              <div class="canv">
+                <video class="clip" data-clip="pinch" poster="v/pinch.jpg" muted loop playsinline preload="none" aria-label="Video: standing with a straight arm at the side, pinching a wide block on a loading pin, lifting it just off the floor and holding for ten seconds."><source src="v/pinch.mp4" type="video/mp4"><source src="v/pinch.webm" type="video/webm"></video>
+                <p class="cap"><b>Four holds each hand.</b> Thumb flat on one face, fingers on the other, wrist held slightly back.</p>
+              </div>
+              <p class="swap"><b>No pinch block?</b> A bumper plate or a thick, smooth-sided book lifted by its edge.</p>
+            </div></div></div>
+          </div>
+        </div>
+        <p class="shared">Both sessions</p>
+        <ol class="how">
+          <li><b>Ramp up first.</b> Three easy lifts at roughly 40%, 60% and 80% of your working weight, five seconds each, in the grip you're about to train.</li>
+          <li>Stand tall, arm straight by your side, shoulder pulled down. Lift the weight just clear of the floor.</li>
+          <li>Hold ten seconds, put it down, swap hands. <b>Three minutes between holds on the same hand</b> — the other hand's hold goes in the middle of that rest. Four rounds each side.</li>
+        </ol>
+        <div class="cue"><span class="k">Load</span><span>Pick a weight where ten seconds ends with about three seconds still in you. Never to failure — this is the one place where pushing to the limit reliably costs you a finger injury.</span></div>
+
+      </div></div></div>
+    </div>
+
+  </div>
+</section>
+
+<section class="band">
+  <div class="band-head"><h2>After you climb</h2><span class="mins">40 min</span></div>
+  <div class="list">
+
+    <div class="ex">
+      <button class="ex-head" aria-expanded="false" type="button">
+        <span class="ex-n">01</span>
+        <span class="ex-name">Pull-ups<em>the one that moves the needle</em></span>
+        <span class="ex-dose">5 × 3–5</span>
+        <span class="chev" aria-hidden="true"></span>
+      </button>
+      <div class="ex-body"><div class="ex-inner"><div class="ex-pad">
+        <div class="canv">
+          <video class="clip" data-clip="pullup" poster="v/pullup.jpg" muted loop playsinline preload="none" aria-label="Video: a strict pull-up. Shoulders set down first, chest to the bar, then a two second lowering."><source src="v/pullup.mp4" type="video/mp4"><source src="v/pullup.webm" type="video/webm"></video>
+          <p class="cap"><b>Up in one second, down in two.</b> Two to three minutes between sets — long rests are what make this a strength lift.</p>
+        </div>
+        <ol class="how">
+          <li>Hang with your hands a little wider than your shoulders.</li>
+          <li><b>Set the shoulders first.</b> Pull them down away from your ears before the arms do anything. Everything starts here.</li>
+          <li>Pull your chest toward the bar, chin clearly over it.</li>
+          <li>Lower over two slow seconds and keep a little tension at the bottom.</li>
+        </ol>
+        <div class="ab">
+          <div><span class="t">Session A</span><span class="v">5 × 3–5 heavy</span></div>
+          <div><span class="t">Session B</span><span class="v">4 × 6–8 easy</span></div>
+        </div>
+        <div class="cue"><span class="k">Progress</span><span>When session A's top set hits five clean reps, add 2.5 kg in a belt or a rucksack. Can't do five yet? Jump to the top and take five seconds to lower — five of those, three sets.</span></div>
+      </div></div></div>
+    </div>
+
+    <div class="ex">
+      <button class="ex-head" aria-expanded="false" type="button">
+        <span class="ex-n">02</span>
+        <span class="ex-name">Dumbbell press<em>balances out all the pulling</em></span>
+        <span class="ex-dose">3 × 6–8</span>
+        <span class="chev" aria-hidden="true"></span>
+      </button>
+      <div class="ex-body"><div class="ex-inner"><div class="ex-pad">
+        <div class="canv">
+          <video class="clip" data-clip="dbpress" poster="v/dbpress.jpg" muted loop playsinline preload="none" aria-label="Video: lying on a bench, pressing two dumbbells up from chest height and lowering over two seconds."><source src="v/dbpress.mp4" type="video/mp4"><source src="v/dbpress.webm" type="video/webm"></video>
+          <p class="cap"><b>Up in one second, down in two.</b> Two minutes between sets.</p>
+        </div>
+        <ol class="how">
+          <li>Lie on a bench, dumbbells at chest height, elbows at about 45° to your body — not flared straight out to the sides.</li>
+          <li>Press up and slightly together until the arms are straight but not jammed.</li>
+          <li>Lower over two seconds until your upper arms are level with your ribs, then press again.</li>
+        </ol>
+        <div class="cue"><span class="k">Cue</span><span>Shoulder blades pinned down and back into the bench throughout. If they roll forward at the top you've reached too far.</span></div>
+        <p class="swap"><b>No bench?</b> Do it on the floor. The floor stops your elbows at a sensible depth for you.</p>
+      </div></div></div>
+    </div>
+
+    <div class="ex">
+      <button class="ex-head" aria-expanded="false" type="button">
+        <span class="ex-n">03</span>
+        <span class="ex-name">Face pulls<em>shoulder insurance</em></span>
+        <span class="ex-dose">3 × 12–15</span>
+        <span class="chev" aria-hidden="true"></span>
+      </button>
+      <div class="ex-body"><div class="ex-inner"><div class="ex-pad">
+        <div class="canv">
+          <video class="clip" data-clip="facepull" poster="v/facepull.jpg" muted loop playsinline preload="none" aria-label="Video: pulling a band toward the face with the elbows high, pausing at the back, then returning slowly."><source src="v/facepull.mp4" type="video/mp4"><source src="v/facepull.webm" type="video/webm"></video>
+          <p class="cap"><b>Pause one second at the back.</b> Light weight. One minute between sets.</p>
+        </div>
+        <ol class="how">
+          <li>Band or cable at roughly head height. Step back until the arms are straight and the band has tension.</li>
+          <li>Pull toward your forehead, leading with the elbows. <b>Elbows stay level with your shoulders</b>, not below.</li>
+          <li>Hold a second with your hands either side of your head, then let it back out slowly.</li>
+        </ol>
+        <div class="cue"><span class="k">Cue</span><span>If the elbows drop it's become a row and stopped doing the job. Go lighter before you let that happen.</span></div>
+        <p class="swap"><b>No band or cable?</b> Lie face down on a bench and make the same shape with 2–4 kg dumbbells.</p>
+      </div></div></div>
+    </div>
+
+    <div class="ex">
+      <button class="ex-head" aria-expanded="false" type="button">
+        <span class="ex-n">04</span>
+        <span class="ex-name">Slow curls<em>elbows and arms</em></span>
+        <span class="ex-dose">3 × 8</span>
+        <span class="chev" aria-hidden="true"></span>
+      </button>
+      <div class="ex-body"><div class="ex-inner"><div class="ex-pad">
+        <div class="canv">
+          <video class="clip" data-clip="curl" poster="v/curl.jpg" muted loop playsinline preload="none" aria-label="Video: a dumbbell curl lifted in one second and lowered over four slow seconds, stopping just short of a straight arm."><source src="v/curl.mp4" type="video/mp4"><source src="v/curl.webm" type="video/webm"></video>
+          <p class="cap"><b>One second up, four seconds down.</b> The slow lowering is the entire point.</p>
+        </div>
+        <ol class="how">
+          <li>Stand tall, dumbbell in each hand, palms forward, elbows pinned to your sides.</li>
+          <li>Curl up in one second.</li>
+          <li><b>Take four seconds to lower</b> and stop just before the arm is fully straight.</li>
+        </ol>
+        <div class="cue"><span class="k">Why</span><span>Slow lowering builds an elbow that can control load, not just produce it. Go lighter than your ego wants — the tempo is what does the work.</span></div>
+      </div></div></div>
+    </div>
+
+    <div class="ex">
+      <button class="ex-head" aria-expanded="false" type="button">
+        <span class="ex-n">05</span>
+        <span class="ex-name">Seated leg lifts<em>the missing piece for an L-sit</em></span>
+        <span class="ex-dose">3 × 5</span>
+        <span class="chev" aria-hidden="true"></span>
+      </button>
+      <div class="ex-body"><div class="ex-inner"><div class="ex-pad">
+        <div class="canv">
+          <video class="clip" data-clip="seated" poster="v/seated.jpg" muted loop playsinline preload="none" aria-label="Video: sitting with legs straight and hands beside the hips, lifting both heels off the floor and holding for three seconds."><source src="v/seated.mp4" type="video/mp4"><source src="v/seated.webm" type="video/webm"></video>
+          <p class="cap"><b>Lift, hold three seconds, lower slowly.</b> Five reps, three rounds.</p>
+        </div>
+        <ol class="how">
+          <li>Sit on the floor, legs straight, hands flat beside your hips — on blocks or books if that's easier to reach.</li>
+          <li>Sit up tall first. Chest up, back long, shoulders pushed down.</li>
+          <li>Lift both heels a few centimetres and hold three seconds. Lower under control.</li>
+        </ol>
+        <div class="cue"><span class="k">Cue</span><span>If your back rounds to get the legs up, the rep doesn't count. Lift less height and keep the chest tall. That's the whole exercise.</span></div>
+      </div></div></div>
+    </div>
+
+    <div class="ex">
+      <button class="ex-head" aria-expanded="false" type="button">
+        <span class="ex-n">06</span>
+        <span class="ex-name">Knee raises &amp; L-sit<em>build the hold</em></span>
+        <span class="ex-dose">3 × 8 + 3 × 20s</span>
+        <span class="chev" aria-hidden="true"></span>
+      </button>
+      <div class="ex-body"><div class="ex-inner"><div class="ex-pad">
+        <div class="canv">
+          <video class="clip" data-clip="kneeraise" poster="v/kneeraise.jpg" muted loop playsinline preload="none" aria-label="Video: hanging from a bar, tilting the pelvis and raising the knees to hip height, then lowering with no swing."><source src="v/kneeraise.mp4" type="video/mp4"><source src="v/kneeraise.webm" type="video/webm"></video>
+          <p class="cap"><b>Hanging knee raise — 3 × 8.</b> No swing. If you start using momentum, the set is finished.</p>
+        </div>
+        <div class="canv">
+          <video class="clip" data-clip="lsit" poster="v/lsit.jpg" muted loop playsinline preload="none" aria-label="Video: supported on parallettes in a tuck hold, then extending one leg straight out and back."><source src="v/lsit.mp4" type="video/mp4"><source src="v/lsit.webm" type="video/webm"></video>
+          <p class="cap"><b>Tuck hold — 3 × 20s</b>, then extend one leg at a time.</p>
+        </div>
+        <ol class="how">
+          <li><b>Knee raises:</b> hang, tilt the pelvis so the low back flattens, then bring the knees to hip height and lower slowly.</li>
+          <li><b>Tuck hold:</b> on parallettes or two chairs, press down hard and drive the shoulders away from your ears. Knees tucked, feet clear of the floor.</li>
+          <li>Once three clean twenty-second holds feel steady, straighten <b>one</b> leg. Then the other. Both legs is the last step, not the first.</li>
+        </ol>
+        <div class="cue"><span class="k">Cue</span><span>Arms dead straight, shoulders pushed down, chest up. If the shoulders creep toward your ears, come down and reset rather than fighting it.</span></div>
+      </div></div></div>
+    </div>
+
+    <div class="ex">
+      <button class="ex-head" aria-expanded="false" type="button">
+        <span class="ex-n">07</span>
+        <span class="ex-name">Wrist battery<em>four movements, one dumbbell</em></span>
+        <span class="ex-dose">2 rounds</span>
+        <span class="chev" aria-hidden="true"></span>
+      </button>
+      <div class="ex-body"><div class="ex-inner"><div class="ex-pad">
+        <p class="swap">Rest your forearm along your thigh or a bench with the hand hanging off the end. Work through all four, then repeat the round. Two or three reps left in the tank on each — these are small muscles and they bruise easily.</p>
+        <div class="grid2">
+          <div class="canv">
+            <video class="clip" data-clip="wcurl" poster="v/wcurl.jpg" muted loop playsinline preload="none" aria-label="Video: forearm supported palm up, letting the dumbbell roll to the fingertips and curling the wrist back up."><source src="v/wcurl.mp4" type="video/mp4"><source src="v/wcurl.webm" type="video/webm"></video>
+            <p class="cap"><b>1 · Wrist curl</b> — palm up, 10–15 reps. Let the weight roll to the fingertips, then curl it back.</p>
+          </div>
+          <div class="canv">
+            <video class="clip" data-clip="wrev" poster="v/wrev.jpg" muted loop playsinline preload="none" aria-label="Video: forearm supported palm down, lifting the back of the hand upward and lowering."><source src="v/wrev.mp4" type="video/mp4"><source src="v/wrev.webm" type="video/webm"></video>
+            <p class="cap"><b>2 · Reverse curl</b> — palm down, 10–15 reps. Much lighter than you expect.</p>
+          </div>
+          <div class="canv">
+            <video class="clip" data-clip="wrot" poster="v/wrot.jpg" muted loop playsinline preload="none" aria-label="Video: holding a weight at one end like a hammer and rotating the forearm from palm-up to palm-down."><source src="v/wrot.mp4" type="video/mp4"><source src="v/wrot.webm" type="video/webm"></video>
+            <p class="cap"><b>3 · Rotation</b> — 10–15 slow reps. Hold the dumbbell at one end only, or use a hammer.</p>
+          </div>
+          <div class="canv">
+            <video class="clip" data-clip="wdev" poster="v/wdev.jpg" muted loop playsinline preload="none" aria-label="Video: forearm on the thigh, holding a dumbbell at one end with the thumb up, tilting it back and forward from the wrist only."><source src="v/wdev.mp4" type="video/mp4"><source src="v/wdev.webm" type="video/webm"></video>
+            <p class="cap"><b>4 · Tilt</b> — 10–15 reps each way. Small range, slow, wrist only.</p>
+          </div>
+        </div>
+
+        <div class="cue"><span class="k">Kit</span><span>One light dumbbell covers all four. No dumbbell? A hammer, a loading pin, a 1-litre bottle or a large tin all work — hold them at one end for movements 3 and 4.</span></div>
+      </div></div></div>
+    </div>
+
+  </div>
+</section>
+
+<section class="band">
+  <div class="band-head"><h2>When to add weight</h2></div>
+  <div class="rules">
+    <div class="rule up"><span class="tag">Add</span><p>The <b>last set</b> felt like you had two or three more reps in you. Add the smallest jump you have — 1 kg on fingers and wrists, 2.5 kg elsewhere.</p></div>
+    <div class="rule up"><span class="tag">Add</span><p>You hit the <b>top of the rep range on every set</b>, two sessions running.</p></div>
+    <div class="rule hold"><span class="tag">Hold</span><p>You had to swing, bounce or lose the shape to finish. Stay here until it's clean.</p></div>
+    <div class="rule hold"><span class="tag">Hold</span><p>Something is still sore <b>the next morning</b>. Repeat the week as it was, or drop a set.</p></div>
+    <div class="rule hold"><span class="tag">Back off</span><p>Soreness that <b>gets worse</b> as you add weight, or joint pain lasting more than a couple of days. Return to the last comfortable weight and rebuild from there.</p></div>
+  </div>
+  <p class="swap">Four weeks of building, then a fifth week at roughly two thirds of the weight with the same exercises. Start the next block a little above where you finished the last one.</p>
+</section>
+
+<section class="band">
+  <div class="band-head"><h2>What this is based on</h2></div>
+  <div class="refs">
+    <p><b>Twice a week is enough.</b> With total weekly sets matched, training a movement two days a week produces the same strength gains as more frequent splits — <a href="https://link.springer.com/article/10.1186/s40798-018-0149-9" target="_blank" rel="noopener">Grgic et al., Sports Medicine Open</a>.</p>
+    <p><b>Stopping short of failure.</b> Strength gains hold up well when sets stop a couple of reps short, and the recovery cost is far lower — <a href="https://sportrxiv.org/index.php/server/preprint/view/295" target="_blank" rel="noopener">Robinson et al., meta-regression</a>.</p>
+    <p><b>Long rests on the heavy lifts.</b> Rests beyond two minutes beat short ones for strength, which is why the pull-ups get three minutes and the wrist work gets one — <a href="https://fitgreystrong.com/wp-content/uploads/2019/07/grgic2017.pdf" target="_blank" rel="noopener">Grgic et al., systematic review</a>.</p>
+    <p><b>The finger protocol.</b> Ten-second holds, two to five sets, three minutes rest, stopping about three seconds short of failure, twice weekly with 48 hours between — Eva López's max hang research, <a href="https://strengthclimbing.com/eva-lopez-maxhangs/" target="_blank" rel="noopener">summarised here</a>.</p>
+    <p><b>The pinch position.</b> Eric Hörst calls wide pinch with the wrist extended the single most overlooked position climbers should train — <a href="https://trainingforclimbing.com/training-the-wrist-stabilizers/" target="_blank" rel="noopener">Training for Climbing</a>.</p>
+    <p><b>L-sit ladder and hold times.</b> Feet down, one foot up, tuck, slight extension, one leg, full — <a href="https://gmb.io/l-sit/" target="_blank" rel="noopener">GMB's progression</a>.</p>
+  </div>
+</section>
+
+<footer>
+  General training guidance, not medical advice. Sharp pain, swelling, or anything that hasn't settled within a few days is worth a physiotherapist rather than another week of guessing.
+</footer>
+
+</div>
+
+<script>
+(function(){
+  var reduce = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : { matches:false };
+  function vids(root){ return root.querySelectorAll("video.clip"); }
+  function play(v){ if (reduce.matches){ v.controls = true; return; } var p = v.play(); if (p && p.catch) p.catch(function(e){ if (e && e.name === "NotAllowedError") v.controls = true; }); }
+  function shown(v){
+    for (var el = v.parentNode; el && el !== document; el = el.parentNode){
+      if (el.classList && (el.classList.contains("ex") || el.classList.contains("sess")) && !el.classList.contains("open")) return false;
+    }
+    return true;
+  }
+  // after a panel finishes opening, start clips that are now on screen
+  function settle(v){ setTimeout(function(){ if (!v.__open) return; var r = v.getBoundingClientRect(); if (r.height > 0 && r.bottom > 0 && r.top < window.innerHeight) play(v); }, 360); }
+  function setLive(root){
+    var list = vids(root);
+    for (var i=0;i<list.length;i++){
+      var v = list[i];
+      if (shown(v)){ if (v.preload !== "auto") { v.preload = "auto"; } v.__open = true; if (v.__seen !== false) play(v); else settle(v); }
+      else { v.__open = false; v.pause(); }
+    }
+  }
+  // pause clips that scroll out of view, resume when back
+  if ("IntersectionObserver" in window){
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){ var v = e.target; v.__seen = e.isIntersecting; if (!v.__open) return; if (e.isIntersecting) play(v); else v.pause(); });
+    }, { threshold: 0.15 });
+    document.querySelectorAll("video.clip").forEach(function(v){ io.observe(v); });
+  }
+  // tap a clip to pause or resume it
+  document.querySelectorAll("video.clip").forEach(function(v){
+    v.addEventListener("click", function(){ if (v.paused) { var p = v.play(); if (p && p.catch) p.catch(function(){}); } else v.pause(); });
+  });
+  var heads = document.querySelectorAll(".ex-head");
+  for (var j=0;j<heads.length;j++){
+    (function(btn){
+      var item = btn.parentNode;
+      btn.addEventListener("click", function(){
+        var open = item.classList.toggle("open");
+        btn.setAttribute("aria-expanded", open ? "true" : "false");
+        setLive(item);
+      });
+    })(heads[j]);
+  }
+  var sheads = document.querySelectorAll(".sess-head");
+  for (var k=0;k<sheads.length;k++){
+    (function(btn){
+      var item = btn.parentNode;
+      btn.addEventListener("click", function(){
+        var open = item.classList.toggle("open");
+        btn.setAttribute("aria-expanded", open ? "true" : "false");
+        setLive(item);
+      });
+    })(sheads[k]);
+  }
+  var opened = document.querySelectorAll(".ex.open");
+  for (var m=0;m<opened.length;m++) setLive(opened[m]);
+})();
+</script>
+
+</body>
+</html>
